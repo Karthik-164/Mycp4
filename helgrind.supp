@@ -1,0 +1,28 @@
+# helgrind.supp - glibc stdio false positives
+#
+# glibc protects each FILE with an internal lock that helgrind does not
+# recognise, so concurrent printf() calls from worker threads are reported as
+# races on stdout's buffer ("Locks held: none").  stdio is thread-safe by POSIX.
+# Only races whose stack passes through glibc's stdio internals are suppressed;
+# races on mycp's own data (job queue, counters) are still reported.
+{
+   glibc-stdio-printf-buffer
+   Helgrind:Race
+   ...
+   fun:__printf_buffer*
+   ...
+}
+{
+   glibc-stdio-vfprintf
+   Helgrind:Race
+   ...
+   fun:__vfprintf_internal
+   ...
+}
+{
+   glibc-stdio-IO
+   Helgrind:Race
+   ...
+   fun:_IO_*
+   ...
+}
